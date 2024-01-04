@@ -1,6 +1,7 @@
-import random
 import multiprocessing
+import random
 import time
+
 
 # Task 1: Matrix Multiplication Function
 def matrix_multiply(A, B):
@@ -39,7 +40,7 @@ def parallel_matrix_multiply(A, B, num_processes):
             for j in range(len(B[0])):
                 for k in range(len(A[0])):
                     local_result[i - start_row][j] += A[i][k] * B[k][j]
-        result_queue.put(local_result)
+        result_queue.put((start_row, local_result))
 
     # Create and start processes
     processes = []
@@ -55,11 +56,12 @@ def parallel_matrix_multiply(A, B, num_processes):
     for process in processes:
         process.join()
 
-    # Collect results from the queue
+    # Collect results from the queue and update the main result matrix
     for _ in range(num_processes):
-        local_result = result_queue.get()
+        start_row, local_result = result_queue.get()
         for i in range(len(local_result)):
-            result[i + start_row] = local_result[i]
+            for j in range(len(local_result[0])):
+                result[start_row + i][j] = local_result[i][j]
 
     return result
 
@@ -73,24 +75,25 @@ def measure_performance(A, B, num_processes):
     parallel_result = parallel_matrix_multiply(A, B, num_processes)
     parallel_time = time.time() - start_time
 
-    speedup = serial_time / parallel_time
-    efficiency = speedup / num_processes
+    # Check if the results are the same
+    assert serial_result == parallel_result, "Results do not match!"
 
     print(f"Serial Execution Time: {serial_time:.6f} seconds")
     print(f"Parallel Execution Time ({num_processes} processes): {parallel_time:.6f} seconds")
-    print(f"Speedup: {speedup:.2f}")
-    print(f"Efficiency: {efficiency:.2%}")
 
-# Define the dimensions of the matrices
-rows_A, cols_A = 30, 12
-rows_B, cols_B = 12, 30
+if __name__ == "__main__":
+    for i in range(1, 100):
+        # Define the dimensions of the matrices
+        rows_A, cols_A = i, i
+        rows_B, cols_B = i, i
 
-# Generate random matrices A and B
-A = [[random.randint(1, 10) for _ in range(cols_A)] for _ in range(rows_A)]
-B = [[random.randint(1, 10) for _ in range(cols_B)] for _ in range(rows_B)]
+        # Generate random matrices A and B
+        A = [[random.randint(1, 10) for _ in range(cols_A)] for _ in range(rows_A)]
+        B = [[random.randint(1, 10) for _ in range(cols_B)] for _ in range(rows_B)]
 
-# Number of processes for parallel processing
-num_processes = 2  # Adjust as needed
+        # Number of processes for parallel processing
+        num_processes = 3  # Adjust as needed
 
-# Measure and compare performance
-measure_performance(A, B, num_processes)
+        print(f"For {i}, {i} * {i}, {i} matrix:")
+        # Measure and compare performance
+        measure_performance(A, B, num_processes)

@@ -69,24 +69,22 @@ def measure_performance(A, B, num_threads):
     # Check if the results are the same
     assert serial_result == parallel_result, "Results do not match!"
 
-    speedup = serial_time / parallel_time
-    efficiency = speedup / num_threads
-
     print(f"Serial Execution Time: {serial_time:.6f} seconds")
     print(f"Parallel Execution Time ({num_threads} threads): {parallel_time:.6f} seconds")
-    print(f"Speedup: {speedup:.2f}")
-    print(f"Efficiency: {efficiency:.2%}")
 
-# Define the dimensions of the matrices
-rows_A, cols_A = 30, 12
-rows_B, cols_B = 12, 30
+if __name__ == "__main__":
+    for i in range(1, 100):
+        # Define the dimensions of the matrices
+        rows_A, cols_A = i, i
+        rows_B, cols_B = i, i
 
-# Generate random matrices A and B
-A = [[random.randint(1, 10) for _ in range(cols_A)] for _ in range(rows_A)]
-B = [[random.randint(1, 10) for _ in range(cols_B)] for _ in range(rows_B)]
+        # Generate random matrices A and B
+        A = [[random.randint(1, 10) for _ in range(cols_A)] for _ in range(rows_A)]
+        B = [[random.randint(1, 10) for _ in range(cols_B)] for _ in range(rows_B)]
 
-# Number of threads for parallel processing
-num_threads = 2  # Adjust as needed
+        # Number of threads for parallel processing
+        num_threads = 4  # Adjust as needed
 
-# Measure and compare performance
-measure_performance(A, B, num_threads)
+        print(f"For {i}, {i} * {i}, {i} matrix:")
+        # Measure and compare performance
+        measure_performance(A, B, num_threads)
